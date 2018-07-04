@@ -24,8 +24,6 @@ public class KioskActivity extends CordovaActivity {
     public static volatile boolean running = false;
     public static volatile Set<Integer> allowedKeys = Collections.EMPTY_SET;
 
-    private StatusBarOverlay statusBarOverlay = null;
-
     @Override
     protected void onStart() {
         super.onStart();
@@ -44,17 +42,17 @@ public class KioskActivity extends CordovaActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.init();
-        
+
         if (running) {
             finish(); // prevent more instances of kiosk activity
         }
-        
+
         loadUrl(launchUrl);
-        
+
         // https://github.com/apache/cordova-plugin-statusbar/blob/master/src/android/StatusBar.java
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        
+
         // https://github.com/hkalina/cordova-plugin-kiosk/issues/14
         View decorView = getWindow().getDecorView();
         // Hide the status bar.
@@ -63,18 +61,6 @@ public class KioskActivity extends CordovaActivity {
         // status bar is hidden, so hide that too if necessary.
         ActionBar actionBar = getActionBar();
         if (actionBar != null) actionBar.hide();
-        
-        // add overlay to prevent statusbar access by swiping
-        statusBarOverlay = StatusBarOverlay.createOrObtainPermission(this);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        if (statusBarOverlay != null) {
-            statusBarOverlay.destroy(this);
-            statusBarOverlay = null;
-        }
     }
 
     @Override
@@ -89,13 +75,13 @@ public class KioskActivity extends CordovaActivity {
         super.onWindowFocusChanged(hasFocus);
         if(!hasFocus) {
             System.out.println("Focus lost - closing system dialogs");
-            
+
             Intent closeDialog = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
             sendBroadcast(closeDialog);
-            
+
             ActivityManager am = (ActivityManager)getSystemService(Context.ACTIVITY_SERVICE);
             am.moveTaskToFront(getTaskId(), ActivityManager.MOVE_TASK_WITH_HOME);
-            
+
             // sometime required to close opened notification area
             Timer timer = new Timer();
             timer.schedule(new TimerTask(){
@@ -103,8 +89,7 @@ public class KioskActivity extends CordovaActivity {
                     Intent closeDialog = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
                     sendBroadcast(closeDialog);
                 }
-            }, 500); // 0.5 second
+            }, 300); // 0.3 second
         }
     }
 }
-
