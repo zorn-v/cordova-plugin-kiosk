@@ -25,11 +25,11 @@
         <engine name="cordova" version=">=3.0.0" />
     </engines>
 
-    <js-module src="kiosk.js" name="kioskPlugin">
-        <clobbers target="window.KioskPlugin" />
-    </js-module>
-
     <platform name="android">
+
+        <js-module src="kiosk.js" name="kioskPlugin">
+            <clobbers target="window.KioskPlugin" />
+        </js-module>
 
         <config-file target="res/xml/config.xml" parent="/*">
             <feature name="KioskPlugin">
